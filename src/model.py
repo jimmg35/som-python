@@ -15,7 +15,7 @@ class SOM(object):
         self.iteration = iteration
         self.batch_size = batch_size
         self.W = np.random.rand(X.shape[1], output[0] * output[1])
-        print (self.W.shape)
+        print(f"output dimension: {self.W.shape} \n")
 
     def GetN(self, t):
         """
@@ -23,7 +23,7 @@ class SOM(object):
         :return: 返回一個整數，表示拓撲距離，時間越大，拓撲鄰域越小
         """
         a = min(self.output)
-        return int(a-float(a)*t/self.iteration)
+        return int( a - float(a) * t / self.iteration )
 
     def Geteta(self, t, n):
         """
@@ -85,7 +85,7 @@ class SOM(object):
         normal_X(self.X)
         train_Y = self.X.dot(self.W)
         winner = np.argmax(train_Y, axis=1).tolist()
-        print (winner)
+        print(f"winner index: {winner} \n")
         return winner
 
 def normal_X(X):

@@ -27,6 +27,8 @@ if __name__ == '__main__':
             classify.setdefault(win[0], [i])
         else:
             classify[win[0]].append(i)
+    
+    print(classify)
     C = []#未歸一化的數據分類結果
     D = []#歸一化的數據分類結果
     for i in classify.values():
