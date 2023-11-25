@@ -2,7 +2,7 @@ import numpy as np
 import pylab as pl
 
 class SOM(object):
-    def __init__(self, X, output, iteration, batch_size):
+    def __init__(self, dataset, output, iteration, batch_size):
         """
         :param X:  形狀是N*D， 輸入樣本有N個,每個D維
         :param output: (n,m)一個元組，爲輸出層的形狀是一個n*m的二維矩陣
@@ -10,11 +10,11 @@ class SOM(object):
         :param batch_size:每次迭代時的樣本數量
         初始化一個權值矩陣，形狀爲D*(n*m)，即有n*m權值向量，每個D維
         """
-        self.X = X
+        self.dataset = dataset
         self.output = output
         self.iteration = iteration
         self.batch_size = batch_size
-        self.W = np.random.rand(X.shape[1], output[0] * output[1])
+        self.W = np.random.rand(dataset.X.shape[1], output[0] * output[1])
         print(f"output dimension: {self.W.shape} \n")
 
     def GetN(self, t):
@@ -36,7 +36,7 @@ class SOM(object):
     def updata_W(self, X, t, winner):
         N = self.GetN(t)
         for x, i in enumerate(winner):
-            to_update = self.getneighbor(i[0], N)
+            to_update = self.getneighbor(i, N)
             for j in range(N+1):
                 e = self.Geteta(t, j)
                 for w in to_update[j]:
@@ -61,9 +61,6 @@ class SOM(object):
             if dist_a <= N and dist_b <= N: ans[max(dist_a, dist_b)].add(i)
         return ans
 
-
-
-
     def train(self):
         """
         train_Y:訓練樣本與形狀爲batch_size*(n*m)
@@ -72,20 +69,35 @@ class SOM(object):
         """
         count = 0
         while self.iteration > count:
-            train_X = self.X[np.random.choice(self.X.shape[0], self.batch_size)]
+            train_X = self.dataset.X[np.random.choice(self.dataset.X.shape[0], self.batch_size)]
+
+
             normal_W(self.W)
             normal_X(train_X)
             train_Y = train_X.dot(self.W)
+
+            print(train_X)
+            print('===========')
+            print(self.W)
+            print('===========')
+            print(train_Y)
+            print('===========')
+
             winner = np.argmax(train_Y, axis=1).tolist()
+
+            print(winner)
+
             self.updata_W(train_X, count, winner)
             count += 1
         return self.W
 
     def train_result(self):
-        normal_X(self.X)
-        train_Y = self.X.dot(self.W)
+        # print(self.dataset.X)
+        normal_X(self.dataset.X)
+        # print(self.dataset.X)
+        train_Y = self.dataset.X.dot(self.W)
         winner = np.argmax(train_Y, axis=1).tolist()
-        print(f"winner index: {winner} \n")
+        # print(f"winner index: {winner} \n")
         return winner
 
 def normal_X(X):

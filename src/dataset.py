@@ -1,7 +1,12 @@
-from torch.utils.data import Dataset
-from PIL import Image
 import pandas as pd
-from typing import List
-import numpy as np
-from .preprocess import standardization, normalization
-import os
+
+class Dataset():
+
+    def __init__(
+        self, dataset_path: str
+    ):
+        # load data using pandas
+        data = pd.read_csv(dataset_path)
+
+        # transform pandas dataframe to numpy 2D array
+        self.X = data.drop('id', axis=1).values
