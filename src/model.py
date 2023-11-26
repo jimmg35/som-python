@@ -1,5 +1,6 @@
 import numpy as np
-import pylab as pl
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 class SOM(object):
     def __init__(self, dataset, output, iteration, batch_size):
@@ -70,35 +71,24 @@ class SOM(object):
         count = 0
         while self.iteration > count:
             train_X = self.dataset.X[np.random.choice(self.dataset.X.shape[0], self.batch_size)]
-
-
             normal_W(self.W)
             normal_X(train_X)
             train_Y = train_X.dot(self.W)
-
-            print(train_X)
-            print('===========')
-            print(self.W)
-            print('===========')
-            print(train_Y)
-            print('===========')
-
             winner = np.argmax(train_Y, axis=1).tolist()
-
-            print(winner)
-
             self.updata_W(train_X, count, winner)
             count += 1
         return self.W
 
     def train_result(self):
-        # print(self.dataset.X)
         normal_X(self.dataset.X)
-        # print(self.dataset.X)
         train_Y = self.dataset.X.dot(self.W)
-        winner = np.argmax(train_Y, axis=1).tolist()
-        # print(f"winner index: {winner} \n")
-        return winner
+        winner = np.array([np.argmax(train_Y, axis=1).tolist()]).transpose()
+        encoder = LabelEncoder()
+        encoded_winner = np.array([encoder.fit_transform(winner.flatten())]).transpose()
+        merged = np.hstack((self.dataset.X_origin, self.dataset.X, encoded_winner))
+        columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + [f"x{i+1}_normalized" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
+        df = pd.DataFrame(merged, columns=columns).rename_axis("id")
+        return df
 
 def normal_X(X):
     """
@@ -120,17 +110,17 @@ def normal_W(W):
         W[:, i] /= np.sqrt(temp)
     return W
 
-#畫圖
-def draw(C):
-    colValue = ['r', 'y', 'g', 'b', 'c', 'k', 'm']
-    for i in range(len(C)):
-        coo_X = []    #x座標列表
-        coo_Y = []    #y座標列表
-        for j in range(len(C[i])):
-            coo_X.append(C[i][j][0])
-            coo_Y.append(C[i][j][1])
-        pl.scatter(coo_X, coo_Y, marker='x', color=colValue[i%len(colValue)], label=i)
+# #畫圖
+# def draw(C):
+#     colValue = ['r', 'y', 'g', 'b', 'c', 'k', 'm']
+#     for i in range(len(C)):
+#         coo_X = []    #x座標列表
+#         coo_Y = []    #y座標列表
+#         for j in range(len(C[i])):
+#             coo_X.append(C[i][j][0])
+#             coo_Y.append(C[i][j][1])
+#         pl.scatter(coo_X, coo_Y, marker='x', color=colValue[i%len(colValue)], label=i)
 
-    pl.legend(loc='upper right')
-    pl.show()
+#     pl.legend(loc='upper right')
+#     pl.show()
 
