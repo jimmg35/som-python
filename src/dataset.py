@@ -9,8 +9,13 @@ class Dataset():
         self, dataset_path: str
     ):
         # load data using pandas
-        data = pd.read_csv(dataset_path)
+        data = pd.read_csv(dataset_path, dtype='float64')
 
         # transform pandas dataframe to numpy 2D array
-        self.X = data.drop('id', axis=1).values
-        self.X_origin = data.drop('id', axis=1).values
+        if 'id' in data.columns:
+            self.X = data.drop('id', axis=1).values
+            self.X_origin = data.drop('id', axis=1).values
+        else:
+            self.X = data.values
+            self.X_origin = data.values
+

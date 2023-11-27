@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from tqdm import tqdm
 
 class SOM(object):
     def __init__(self, dataset, output, iteration, batch_size):
@@ -68,27 +69,40 @@ class SOM(object):
         winner:一個一維向量，batch_size個獲勝神經元的下標
         :return:返回值是調整後的W
         """
-        count = 0
-        while self.iteration > count:
+
+        for i in tqdm(range(self.iteration), desc="Training", unit="epoch"):
             train_X = self.dataset.X[np.random.choice(self.dataset.X.shape[0], self.batch_size)]
             normal_W(self.W)
             normal_X(train_X)
             train_Y = train_X.dot(self.W)
             winner = np.argmax(train_Y, axis=1).tolist()
-            self.updata_W(train_X, count, winner)
-            count += 1
+            self.updata_W(train_X, i, winner)
         return self.W
 
-    def train_result(self):
-        normal_X(self.dataset.X)
+    def export_training_result(self, path):
+
+        # normalize each columns
+        N, D = self.dataset.X.shape
+        for i in tqdm(range(N), desc="Normalizing", unit="row"):
+            temp = np.sum(np.multiply(self.dataset.X[i], self.dataset.X[i]))
+            self.dataset.X[i] /= np.sqrt(temp)
+
+        # feed forward
         train_Y = self.dataset.X.dot(self.W)
         winner = np.array([np.argmax(train_Y, axis=1).tolist()]).transpose()
+
+        # encode cluster
         encoder = LabelEncoder()
         encoded_winner = np.array([encoder.fit_transform(winner.flatten())]).transpose()
+        
+        # merge normalized data with original data
         merged = np.hstack((self.dataset.X_origin, self.dataset.X, encoded_winner))
         columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + [f"x{i+1}_normalized" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
+        
+        # export clustered data
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
-        return df
+        df.to_csv(path, encoding="utf-8")
+
 
 def normal_X(X):
     """
