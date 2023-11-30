@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
+import json
+import os
 
 class SOM(object):
     def __init__(self, dataset, output, iteration, batch_size):
@@ -69,17 +71,20 @@ class SOM(object):
         winner:一個一維向量，batch_size個獲勝神經元的下標
         :return:返回值是調整後的W
         """
+        for epoch in tqdm(range(self.iteration), desc="Training", unit="epoch"):
+            for step in tqdm(range(self.dataset.X.shape[0] // self.batch_size), desc="Updating", unit="step"):
+                start_idx = step * self.batch_size
+                end_idx = (step + 1) * self.batch_size
+                train_X = self.dataset.X[start_idx:end_idx]
+                normal_W(self.W)
+                normal_X(train_X)
+                train_Y = train_X.dot(self.W)
+                winner = np.argmax(train_Y, axis=1).tolist()
+                self.updata_W(train_X, epoch, winner)
 
-        for i in tqdm(range(self.iteration), desc="Training", unit="epoch"):
-            train_X = self.dataset.X[np.random.choice(self.dataset.X.shape[0], self.batch_size)]
-            normal_W(self.W)
-            normal_X(train_X)
-            train_Y = train_X.dot(self.W)
-            winner = np.argmax(train_Y, axis=1).tolist()
-            self.updata_W(train_X, i, winner)
         return self.W
 
-    def export_training_result(self, path):
+    def export_training_result(self, path, clustered_name):
 
         # normalize each columns
         N, D = self.dataset.X.shape
@@ -101,7 +106,22 @@ class SOM(object):
         
         # export clustered data
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
-        df.to_csv(path, encoding="utf-8")
+        df.to_csv(os.path.join(path, clustered_name), encoding="utf-8")
+
+        # export frontend render data, and statistics
+        categories = df['cluster'].unique()
+        group = {}
+
+        for category in categories:
+            x1 = df[df['cluster'] == category]['x1'].tolist()
+            x2 = df[df['cluster'] == category]['x2'].tolist()
+            combined = list(map(list, zip(x1, x2)))
+            group[int(category)]=combined
+
+        with open(os.path.join(path, 'x1_x2.json'), 'w') as json_file:
+            json.dump(group, json_file, indent=2)
+        
+        return group
 
 
 def normal_X(X):

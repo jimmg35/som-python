@@ -57,8 +57,16 @@ if __name__ == '__main__':
 
     # Get the clustered data (pandas DataFrame)
     logging.info(f'Exporting clustered data')
-    som.export_training_result(
-        os.path.join(output_dir, output_dir_name, clustered_name)
+    group = som.export_training_result(
+        os.path.join(output_dir, output_dir_name),
+        clustered_name
     )
     logging.info(f'Cluster result output at {os.path.join(output_dir, output_dir_name, clustered_name)}{escape}')
+
+    # Log cluster info
+    logging.info(f'We have {len(group)} clusters')
+    for category in list(group.keys()):
+        logging.info(f'Counts of cluster #{category} : {len(group[category])}')
+        
+    logging.info(f'{escape}')
     logging.info(f'Finished')
