@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
+import json
+import os
+from itertools import combinations
 
 class SOM(object):
     def __init__(self, dataset, output, iteration, batch_size):
@@ -17,7 +20,6 @@ class SOM(object):
         self.iteration = iteration
         self.batch_size = batch_size
         self.W = np.random.rand(dataset.X.shape[1], output[0] * output[1])
-        print(f"output dimension: {self.W.shape} \n")
 
     def GetN(self, t):
         """
@@ -69,17 +71,20 @@ class SOM(object):
         winner:一個一維向量，batch_size個獲勝神經元的下標
         :return:返回值是調整後的W
         """
+        for epoch in tqdm(range(self.iteration), desc="Training", unit="epoch"):
+            for step in tqdm(range(self.dataset.X.shape[0] // self.batch_size), desc="Updating", unit="step"):
+                start_idx = step * self.batch_size
+                end_idx = (step + 1) * self.batch_size
+                train_X = self.dataset.X[start_idx:end_idx]
+                normal_W(self.W)
+                normal_X(train_X)
+                train_Y = train_X.dot(self.W)
+                winner = np.argmax(train_Y, axis=1).tolist()
+                self.updata_W(train_X, epoch, winner)
 
-        for i in tqdm(range(self.iteration), desc="Training", unit="epoch"):
-            train_X = self.dataset.X[np.random.choice(self.dataset.X.shape[0], self.batch_size)]
-            normal_W(self.W)
-            normal_X(train_X)
-            train_Y = train_X.dot(self.W)
-            winner = np.argmax(train_Y, axis=1).tolist()
-            self.updata_W(train_X, i, winner)
         return self.W
 
-    def export_training_result(self, path):
+    def export_training_result(self, path, clustered_name):
 
         # normalize each columns
         N, D = self.dataset.X.shape
@@ -100,9 +105,75 @@ class SOM(object):
         columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + [f"x{i+1}_normalized" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
         
         # export clustered data
+        print(merged)
+        print(columns)
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
-        df.to_csv(path, encoding="utf-8")
+        df.to_csv(os.path.join(path, clustered_name), encoding="utf-8")
 
+        # export colume meta
+        original_columns = []
+        normalized_columns = []
+        for column in list(df.columns):
+            if column == 'cluster':
+                continue
+            elif 'normalized' in column:
+                normalized_columns.append(column)
+            else:
+                original_columns.append(column)
+
+        column_meta = {
+            'original': original_columns,
+            'normalized': normalized_columns
+        }
+        with open(os.path.join(path, 'meta.json'), 'w') as json_file:
+            json.dump(column_meta, json_file, indent=2)
+
+        # export frontend render data, and statistics
+        categories = df['cluster'].unique()
+        group = {}
+
+        # for i in tqdm(range(len(list(df.columns))), desc="Exporting", unit="column"):
+        out_columns_origin = ['x1', 'x2']
+        out_columns_normalized = ['x1_normalized', 'x2_normalized']
+
+        combination_origin = generate_c3_2(out_columns_origin)
+        combination_normalized = generate_c3_2(out_columns_normalized)
+        print(combination_origin)
+
+        export_combination(
+            combination_origin,
+            categories, df, group, path
+        )
+        export_combination(
+            combination_normalized,
+            categories, df, group, path
+        )
+        return group
+
+def export_combination(columns, categories, df, group, path):
+    for i in tqdm(range(len(columns)), desc="Exporting", unit="column"):
+        comb = columns[i]
+        columnX = comb[0]
+        columnY = comb[1]
+        for category in categories:
+            x1 = df[df['cluster'] == category][columnX].tolist()
+            x2 = df[df['cluster'] == category][columnY].tolist()
+            combined = list(map(list, zip(x1, x2)))
+            group[int(category)]=combined
+
+        with open(os.path.join(path, f'{columnX}_{columnY}.json'), 'w') as json_file:
+            json.dump(group, json_file, indent=2)
+
+def generate_c3_2(out_columns_origin):
+    # 檢查原始列是否至少包含3個元素
+    # if len(out_columns_origin) < 3:
+    #     print("原始列至少需要包含3個元素")
+    #     return
+    
+    # 生成C3取2的所有組合
+    c3_2_combinations = list(combinations(out_columns_origin, 2))
+    
+    return c3_2_combinations
 
 def normal_X(X):
     """
