@@ -6,6 +6,8 @@ import json
 import os
 from itertools import combinations
 
+np.random.seed(666)
+
 class SOM(object):
     def __init__(self, dataset, output, iteration, batch_size):
         """
@@ -105,8 +107,6 @@ class SOM(object):
         columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + [f"x{i+1}_normalized" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
         
         # export clustered data
-        print(merged)
-        print(columns)
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
         df.to_csv(os.path.join(path, clustered_name), encoding="utf-8")
 
