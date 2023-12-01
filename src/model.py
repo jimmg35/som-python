@@ -121,13 +121,6 @@ class SOM(object):
             else:
                 original_columns.append(column)
 
-        column_meta = {
-            'original': original_columns,
-            'normalized': normalized_columns
-        }
-        with open(os.path.join(path, 'meta.json'), 'w') as json_file:
-            json.dump(column_meta, json_file, indent=2)
-
         # export frontend render data, and statistics
         categories = df['cluster'].unique()
         group = {}
@@ -148,6 +141,27 @@ class SOM(object):
             combination_normalized,
             categories, df, group, path
         )
+
+        groupRatio = {}
+
+        for category in list(group.keys()):
+            groupRatio[category] = len(group[category])
+
+        # get experiment metadata
+        column_meta = {
+            'original': original_columns,
+            'normalized': normalized_columns,
+            'epoch': self.iteration,
+            'batchSize': self.batch_size,
+            'outputDimension': self.output,
+            'datasetSize': self.dataset.X.shape,
+            'totalCluster': len(group),
+            'clusterRatio': groupRatio
+        }
+        with open(os.path.join(path, 'meta.json'), 'w') as json_file:
+            json.dump(column_meta, json_file, indent=2)
+
+
         return group
 
 def export_combination(columns, categories, df, group, path):
