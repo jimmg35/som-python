@@ -7,3 +7,8 @@ python som-fit.py --dataset covtype.csv --epoch 10 --batch 1024 --width 10 --hei
 python3 som-fit.py --dataset s-set1.arff --epoch 20 --batch 128 --width 4 --height 4
 
 python3 som-fit.py --dataset disk-6000n.arff --epoch 20 --batch 128 --width 4 --height 4
+
+==============
+python3 som-fit.py --dataset s-set2.arff --epoch 20 --batch 128 --width 4 --height 4
+
+python3 som-fit.py --dataset xclara.arff --epoch 20 --batch 128 --width 4 --height 4

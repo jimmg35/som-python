@@ -4,6 +4,7 @@ import logging
 from src.model import SOM
 from datetime import datetime
 from src.dataset import Dataset
+from src.graph import visualize_weights
 
 # 讀取環境變數與模型超參數
 dataset_name = sys.argv[sys.argv.index('--dataset') + 1]
@@ -67,6 +68,10 @@ if __name__ == '__main__':
     logging.info(f'We have {len(group)} clusters')
     for category in list(group.keys()):
         logging.info(f'Counts of cluster #{category} : {len(group[category])}')
-        
+
     logging.info(f'{escape}')
     logging.info(f'Finished')
+
+
+    # 假設 som 是你已經實例化並訓練好的 SOM 物件
+    visualize_weights(som, filename="som_weights.png")
