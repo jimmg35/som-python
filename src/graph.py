@@ -76,13 +76,27 @@ def create_mp4(input_path, output_path, fps=3):
 
     # 創建自定義的顏色地圖和顏色標準化器
     cmap = ListedColormap(
-        ["#7db3abff", "#dbe6d1ff", "#d6a394ff", 
-        "#c8e0e3ff", "#b5d6f2ff", "#f2f1c2ff", 
-        "#bf7872ff", "#d1c79dff", "#9093c7ff", 
-        "#e3a3ddff", "#e65154ff", "#26b6ffff", 
-        "#67e6d1ff", "#3e756dff", "#73241fff",
-        "#5ff500ff", "#0040ffff"]
+        ['#a6cee3',
+        '#1f78b4',
+        '#b2df8a',
+        '#33a02c',
+        '#fb9a99',
+        '#e31a1c',
+        '#fdbf6f',
+        '#ff7f00',
+        '#cab2d6',
+        '#6a3d9a',
+        '#ffff99',
+        '#b15928',
+        '#a6cee3',
+        '#0098ff',
+        '#453024',
+        '#00ff0d']
     )
+
+    
+
+
 
     boundaries = np.arange(-0.5, len(cmap.colors), 1)
     norm = BoundaryNorm(boundaries, cmap.N, clip=True)
