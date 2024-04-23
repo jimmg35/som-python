@@ -1,5 +1,6 @@
 from pyecharts import options as opts
 from pyecharts.charts import Bar
+import numpy as np
 
 
 def summary_cluster(cluster):
@@ -29,3 +30,12 @@ def summary_cluster(cluster):
     )
     return chart
     
+
+def one_hot_encode_clusters(cluster):
+    unique_cluster = np.unique(cluster['cluster'])
+    one_hot_encoded_clusters = []
+    for cluster_id in unique_cluster:
+        cluster_copy = cluster.copy()
+        cluster_copy['cluster'] = np.where(cluster_copy['cluster'] == cluster_id, 1, 0)
+        one_hot_encoded_clusters.append(cluster_copy)
+    return one_hot_encoded_clusters

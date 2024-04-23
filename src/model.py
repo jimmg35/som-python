@@ -82,7 +82,7 @@ class SOM(object):
                 start_idx = step * self.batch_size
                 end_idx = (step + 1) * self.batch_size
                 train_X = self.dataset.X[start_idx:end_idx]
-                # normal_W(self.W)
+                self.W = normal_W(self.W)
                 # normal_X(train_X)
                 train_Y = train_X.dot(self.W)
                 winner = np.argmax(train_Y, axis=1).tolist()

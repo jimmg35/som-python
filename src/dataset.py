@@ -1,6 +1,6 @@
 import pandas as pd
 from scipy.io import arff
-import copy
+import numpy as np
 
 class Dataset():
 
@@ -40,17 +40,28 @@ class Dataset():
         self.X_origin = data.values
 
 
+    def normal_X(self, X):
+        """
+        :param X:二維矩陣，N*D，N個D維的數據
+        :return: 將X歸一化的結果
+        """
+        N, D = X.shape
+        for i in range(N):
+            temp = np.sum(np.multiply(X[i], X[i]))
+            X[i] /= np.sqrt(temp)
+        return X
+    
     def loadCSV(self, dataset_path):
         # load data using pandas
         data = pd.read_csv(dataset_path, dtype='float64')
-
+        
         # transform pandas dataframe to numpy 2D array
         if 'id' in data.columns:
             self.X = data.drop('id', axis=1).values
-            self.X_origin = copy.copy(self.X)
         else:
             self.X = data.values
-            self.X_origin = copy.copy(self.X)
+
+        self.X = self.normal_X(self.X)
         
         print(self.X.shape)
 
