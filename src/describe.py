@@ -1,7 +1,11 @@
 from pyecharts import options as opts
 from pyecharts.charts import Bar
 import numpy as np
-
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+from pyecharts.commons.utils import JsCode
+from sklearn.metrics import cohen_kappa_score
 
 def summary_cluster(cluster):
     grouped_cluster = cluster.groupby('cluster')
@@ -39,3 +43,62 @@ def one_hot_encode_clusters(cluster):
         cluster_copy['cluster'] = np.where(cluster_copy['cluster'] == cluster_id, 1, 0)
         one_hot_encoded_clusters.append(cluster_copy)
     return one_hot_encoded_clusters
+
+
+def random_forest_train(one_hot_encoded_clusters, cluster_index):
+    one_hot_encoded_cluster = one_hot_encoded_clusters[cluster_index]
+    selected_features = [feature for feature in one_hot_encoded_cluster.columns if feature not in ['id', 'cluster']]
+
+    # 選取特定的欄位作為特徵
+    X = one_hot_encoded_cluster[selected_features]  
+    y = one_hot_encoded_cluster['cluster']
+
+    # 將資料集分為訓練集和測試集
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+    # 初始化隨機森林分類器
+    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+
+    # 在訓練集上訓練模型
+    rf_classifier.fit(X_train, y_train)
+
+    # 在測試集上進行預測
+    y_pred = rf_classifier.predict(X_test)
+
+    # 評估模型性能
+    accuracy = np.mean(y_pred == y_test)
+    kappa = cohen_kappa_score(y_test, y_pred)
+
+    print(f"Cluster {cluster_index} | Accuracy: {accuracy} | Kappa: {kappa}")
+
+    
+    # 獲取特徵重要性分數
+    feature_importances = rf_classifier.feature_importances_
+
+    # # 將特徵重要性分數與特徵名稱對應起來
+    feature_importance_df = pd.DataFrame({'Feature': X.columns, 'Importance': feature_importances})
+
+    return [feature_importance_df, kappa]
+
+
+def render_importance_rank(feature_importance_df, cluster_index):
+    bar = Bar()
+    bar.set_global_opts(
+        title_opts=opts.TitleOpts(title=f"Top 10 Important Features of Cluster {cluster_index}"),
+    )
+    bar.add_xaxis(list(feature_importance_df['Feature']))
+    bar.add_yaxis('Importance', list(feature_importance_df['Importance']))
+
+    bar.set_series_opts(
+            label_opts=opts.LabelOpts(
+                position="top",
+                formatter=JsCode(
+                    """
+                    function(params) {
+                        return params.value.toFixed(2);
+                    }
+                    """
+                ),
+            )
+        )
+    return bar

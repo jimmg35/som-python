@@ -1,6 +1,8 @@
 import pandas as pd
 from scipy.io import arff
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+
 
 class Dataset():
 
@@ -56,13 +58,12 @@ class Dataset():
         data = pd.read_csv(dataset_path, dtype='float64')
 
         self.columns = list(data.columns)
-        print(self.columns)
-        # transform pandas dataframe to numpy 2D array
-        self.X = data.values
 
-        self.X = self.normal_X(self.X)
-        
-        print(self.X.shape)
+        # 創建MinMaxScaler對象
+        scaler = MinMaxScaler()
+
+        # 使用MinMaxScaler對象對數據進行重新縮放
+        self.X = scaler.fit_transform(data.values)
 
 
 
