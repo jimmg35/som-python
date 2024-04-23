@@ -54,12 +54,11 @@ class Dataset():
     def loadCSV(self, dataset_path):
         # load data using pandas
         data = pd.read_csv(dataset_path, dtype='float64')
-        
+
+        self.columns = data.columns
+        print(self.columns)
         # transform pandas dataframe to numpy 2D array
-        if 'id' in data.columns:
-            self.X = data.drop('id', axis=1).values
-        else:
-            self.X = data.values
+        self.X = data.values
 
         self.X = self.normal_X(self.X)
         

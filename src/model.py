@@ -131,7 +131,9 @@ class SOM(object):
             self.dataset.X, 
             encoded_winner
         ))
-        columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
+
+        
+        columns = self.dataset.columns + ['cluster']
         
         # export clustered data
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
