@@ -1,5 +1,6 @@
 import pandas as pd
 from scipy.io import arff
+import copy
 
 class Dataset():
 
@@ -46,10 +47,10 @@ class Dataset():
         # transform pandas dataframe to numpy 2D array
         if 'id' in data.columns:
             self.X = data.drop('id', axis=1).values
-            self.X_origin = data.drop('id', axis=1).values
+            self.X_origin = copy.copy(self.X)
         else:
             self.X = data.values
-            self.X_origin = data.values
+            self.X_origin = copy.copy(self.X)
         
         print(self.X.shape)
 

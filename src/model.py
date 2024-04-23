@@ -133,57 +133,6 @@ class SOM(object):
         df = pd.DataFrame(merged, columns=columns).rename_axis("id")
         df.to_csv(os.path.join(path, clustered_name), encoding="utf-8")
 
-        # # export colume meta
-        # original_columns = []
-        # normalized_columns = []
-        # for column in list(df.columns):
-        #     if column == 'cluster':
-        #         continue
-        #     elif 'normalized' in column:
-        #         normalized_columns.append(column)
-        #     else:
-        #         original_columns.append(column)
-
-        # export frontend render data, and statistics
-        # categories = df['cluster'].unique()
-        # group = {}
-
-        # for i in tqdm(range(len(list(df.columns))), desc="Exporting", unit="column"):
-        # out_columns_origin = ['x1', 'x2']
-        # out_columns_normalized = ['x1_normalized', 'x2_normalized']
-
-        # combination_origin = generate_c3_2(out_columns_origin)
-        # combination_normalized = generate_c3_2(out_columns_normalized)
-        # print(combination_origin)
-
-        # export_combination(
-        #     combination_origin,
-        #     categories, df, group, path
-        # )
-        # export_combination(
-        #     combination_normalized,
-        #     categories, df, group, path
-        # )
-
-        # groupRatio = {}
-
-        # for category in list(group.keys()):
-        #     groupRatio[category] = len(group[category])
-
-        # # get experiment metadata
-        # column_meta = {
-        #     'original': original_columns,
-        #     'normalized': normalized_columns,
-        #     'epoch': self.iteration,
-        #     'batchSize': self.batch_size,
-        #     'outputDimension': self.output,
-        #     'datasetSize': self.dataset.X.shape,
-        #     'totalCluster': len(group),
-        #     'clusterRatio': groupRatio
-        # }
-        # with open(os.path.join(path, 'meta.json'), 'w') as json_file:
-        #     json.dump(column_meta, json_file, indent=2)
-        # return group
 
 def export_combination(columns, categories, df, group, path):
     for i in tqdm(range(len(columns)), desc="Exporting", unit="column"):

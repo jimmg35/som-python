@@ -13,3 +13,7 @@
 ### SOM 分群後的 TIFF 結合為影片檔
 
 `python convert-to-video.py --input ./cluster-result/1703816192_som --output ./cluster-result/1703816192_som`
+
+### 針對 SOM 分群結果進行敘述性統計
+
+`python describe-cluster.py --input `
