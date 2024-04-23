@@ -1,19 +1,15 @@
 ：
 
-
-
-
-
 ## 指令使用方式
 
-SmartyPants converts ASCII punctuation characters into "smart" typographic punctuation HTML entities. For example:
-
-### 多張TIFF結合為CSV檔
+### 多張 TIFF 結合為 CSV 檔
 
 `python raster-to-csv.py --data ./tiff-data/linkou --output ./data/linkou.csv`
 
-### 訓練SOM
+### 訓練 SOM
 
 `python som-fit.py --dataset linkou.csv --epoch 100000 --batch 30 --width 4 --height 4`
 
+### SOM 分群後的 TIFF 結合為影片檔
 
+`python convert-to-video.py --input ./cluster-result/1703816192_som --output ./cluster-result/1703816192_som`

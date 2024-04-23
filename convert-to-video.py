@@ -2,14 +2,10 @@ from src.graph import create_mp4
 import sys
 
 # 讀取環境變數與模型超參數
-tiff_path = sys.argv[sys.argv.index('--clusterResult') + 1]
+input_path = sys.argv[sys.argv.index('--input') + 1]
+output_path = sys.argv[sys.argv.index('--output') + 1]
 
 if __name__ == "__main__":
-    # 指定TIFF影像所在的路徑
-    input_path = r'./cluster-result/1703816192_som'
-
-    # 指定輸出動畫的路徑
-    output_path = "./cluster-result/1703816192_som"
 
     # 轉換為Matplotlib圖片並保存，並製作MP4動畫，每3秒換一張
     create_mp4(input_path, output_path, fps=0.5)
