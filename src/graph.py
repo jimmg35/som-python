@@ -75,7 +75,15 @@ def create_mp4(input_path, output_path, fps=3):
                         key=lambda x: int(''.join(filter(str.isdigit, x))))
 
     # 創建自定義的顏色地圖和顏色標準化器
-    cmap = ListedColormap(['blue', 'green', 'red', 'purple', 'yellow', 'orange', 'brown', 'pink', 'gray'])
+    cmap = ListedColormap(
+        ["#7db3abff", "#dbe6d1ff", "#d6a394ff", 
+        "#c8e0e3ff", "#b5d6f2ff", "#f2f1c2ff", 
+        "#bf7872ff", "#d1c79dff", "#9093c7ff", 
+        "#e3a3ddff", "#e65154ff", "#26b6ffff", 
+        "#67e6d1ff", "#3e756dff", "#73241fff",
+        "#5ff500ff", "#0040ffff"]
+    )
+
     boundaries = np.arange(-0.5, len(cmap.colors), 1)
     norm = BoundaryNorm(boundaries, cmap.N, clip=True)
 
