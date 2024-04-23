@@ -55,7 +55,7 @@ class Dataset():
         # load data using pandas
         data = pd.read_csv(dataset_path, dtype='float64')
 
-        self.columns = data.columns
+        self.columns = list(data.columns)
         print(self.columns)
         # transform pandas dataframe to numpy 2D array
         self.X = data.values
