@@ -82,8 +82,8 @@ class SOM(object):
                 start_idx = step * self.batch_size
                 end_idx = (step + 1) * self.batch_size
                 train_X = self.dataset.X[start_idx:end_idx]
-                normal_W(self.W)
-                normal_X(train_X)
+                # normal_W(self.W)
+                # normal_X(train_X)
                 train_Y = train_X.dot(self.W)
                 winner = np.argmax(train_Y, axis=1).tolist()
                 self.updata_W(train_X, epoch, winner)
@@ -112,10 +112,10 @@ class SOM(object):
     def export_training_result(self, path, clustered_name):
 
         # normalize each columns
-        N, D = self.dataset.X.shape
-        for i in tqdm(range(N), desc="Normalizing", unit="row"):
-            temp = np.sum(np.multiply(self.dataset.X[i], self.dataset.X[i]))
-            self.dataset.X[i] /= np.sqrt(temp)
+        # N, D = self.dataset.X.shape
+        # for i in tqdm(range(N), desc="Normalizing", unit="row"):
+        #     temp = np.sum(np.multiply(self.dataset.X[i], self.dataset.X[i]))
+        #     self.dataset.X[i] /= np.sqrt(temp)
 
         # feed forward
         train_Y = self.dataset.X.dot(self.W)
@@ -126,7 +126,11 @@ class SOM(object):
         encoded_winner = np.array([encoder.fit_transform(winner.flatten())]).transpose()
         
         # merge normalized data with original data
-        merged = np.hstack((self.dataset.X_origin, self.dataset.X, encoded_winner))
+        merged = np.hstack((
+            # self.dataset.X_origin, 
+            self.dataset.X, 
+            encoded_winner
+        ))
         columns = [f"x{i+1}" for i in range(0, self.dataset.X.shape[1])] + [f"x{i+1}_normalized" for i in range(0, self.dataset.X.shape[1])] + ['cluster']
         
         # export clustered data
