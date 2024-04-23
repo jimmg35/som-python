@@ -1,4 +1,8 @@
 from src.graph import create_mp4
+import sys
+
+# 讀取環境變數與模型超參數
+tiff_path = sys.argv[sys.argv.index('--clusterResult') + 1]
 
 if __name__ == "__main__":
     # 指定TIFF影像所在的路徑

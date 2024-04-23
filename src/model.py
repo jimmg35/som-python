@@ -94,17 +94,17 @@ class SOM(object):
                     os.path.join(self.output_dir, self.output_dir_name),
                     f'cluster_{epoch}.csv'
                 )
-                # width = 1045
-                # height = 957
-                # output_path = os.path.join(self.output_dir, self.output_dir_name, f'raster_{epoch}.tiff')
-                # save_dataframe_as_tiff(
-                #     os.path.join(
-                #         self.output_dir, 
-                #         self.output_dir_name, 
-                #         f'cluster_{epoch}.csv'
-                #     ),
-                #     width, height, output_path
-                # )
+                width = 500
+                height = 500
+                output_path = os.path.join(self.output_dir, self.output_dir_name, f'raster_{epoch}.tiff')
+                save_dataframe_as_tiff(
+                    os.path.join(
+                        self.output_dir, 
+                        self.output_dir_name, 
+                        f'cluster_{epoch}.csv'
+                    ),
+                    width, height, output_path
+                )
                 print(f"===== experiment results exported | epoch {epoch} =====")
 
         return self.W
