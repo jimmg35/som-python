@@ -60,7 +60,7 @@ class Dataset():
         self.columns = list(data.columns)
 
         # 創建MinMaxScaler對象
-        scaler = MinMaxScaler()
+        scaler = MinMaxScaler(feature_range=(0,1))
 
         # 使用MinMaxScaler對象對數據進行重新縮放
         self.X = scaler.fit_transform(data.values)
