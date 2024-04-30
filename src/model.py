@@ -6,11 +6,23 @@ import json
 import os
 from itertools import combinations
 from .graph import save_dataframe_as_tiff
+from .export import export_cluster_result_to_csv
 
 np.random.seed(666)
 
 class SOM(object):
-    def __init__(self, dataset, output, iteration, batch_size, checkpoint_step, output_dir, output_dir_name):
+    def __init__(
+            self, 
+            dataset, 
+            output, 
+            iteration, 
+            batch_size, 
+            checkpoint_step, 
+            output_dir, 
+            output_dir_name,
+            IMG_WIDTH,
+            IMG_HEIGHT
+        ):
         """
         :param X:  形狀是N*D， 輸入樣本有N個,每個D維
         :param output: (n,m)一個元組，爲輸出層的形狀是一個n*m的二維矩陣
@@ -26,6 +38,8 @@ class SOM(object):
         self.checkpoint_step = checkpoint_step
         self.output_dir = output_dir
         self.output_dir_name = output_dir_name
+        self.IMG_WIDTH = IMG_WIDTH
+        self.IMG_HEIGHT = IMG_HEIGHT
 
     def GetN(self, t):
         """
@@ -89,21 +103,31 @@ class SOM(object):
                 self.updata_W(train_X, epoch, winner)
             
             if epoch != 0 and epoch % self.checkpoint_step == 0:
-        
-                self.export_training_result(
+
+                # feed forward
+                train_Y = self.dataset.X.dot(self.W)
+                winner = np.array([np.argmax(train_Y, axis=1).tolist()]).transpose()
+
+                # encode cluster
+                encoder = LabelEncoder()
+                encoded_winner = np.array([encoder.fit_transform(winner.flatten())]).transpose()
+
+                # merge data with cluster result
+                datasetWithClusterLabels = np.hstack((
+                    self.dataset.X, 
+                    encoded_winner
+                ))
+                export_cluster_result_to_csv(
+                    datasetWithClusterLabels,
+                    self.dataset.columns,
                     os.path.join(self.output_dir, self.output_dir_name),
                     f'cluster_{epoch}.csv'
                 )
-                width = 500
-                height = 500
-                output_path = os.path.join(self.output_dir, self.output_dir_name, f'raster_{epoch}.tiff')
                 save_dataframe_as_tiff(
-                    os.path.join(
-                        self.output_dir, 
-                        self.output_dir_name, 
-                        f'cluster_{epoch}.csv'
-                    ),
-                    width, height, output_path
+                    os.path.join(self.output_dir, self.output_dir_name),
+                    f'cluster_{epoch}.csv',
+                    self.IMG_WIDTH, 
+                    self.IMG_HEIGHT, 
                 )
                 print(f"===== experiment results exported | epoch {epoch} =====")
 

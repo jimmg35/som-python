@@ -1,9 +1,12 @@
 import os
 import sys
 import logging
-from src.model import SOM
+import numpy as np
 from datetime import datetime
+from sklearn_som.som import SOM
 from src.dataset import Dataset
+from src.graph import save_dataframe_as_tiff
+from src.export import export_cluster_result_to_csv
 
 # 讀取環境變數與模型超參數
 dataset_name = sys.argv[sys.argv.index('--dataset') + 1]
@@ -20,7 +23,7 @@ checkpoint_step = 5
 current_timestamp = int(datetime.timestamp(datetime.now()))
 data_dir = r'./data'
 output_dir = r'./cluster-result'
-output_dir_name = f"{str(current_timestamp)}_som"
+output_dir_name = f"{str(current_timestamp)}_som_sklearn"
 if os.path.exists(data_dir) == False:
     os.mkdir(data_dir)
 
@@ -37,51 +40,49 @@ logging.getLogger().addHandler(logging.StreamHandler())
 escape = "\n\n============================= \n"
 
 
-
 if __name__ == '__main__':
-
+    
     # Loading dataset (must in csv format)
     dataset = Dataset(
         os.path.join(data_dir, dataset_name)
     )
     logging.info(f'{escape}')
     logging.info(f'Reading dataset named - {dataset_name} {escape}')
+    
 
     # Loading hyperparameters
-    som = SOM(
-        dataset, 
-        (HEIGHT, WIDTH), 
-        EPOCH, 
-        BATCH_SIZE, 
-        checkpoint_step,
-        output_dir, output_dir_name,
-        IMG_WIDTH, IMG_HEIGHT
-    )
+    som = SOM(m=HEIGHT, n=WIDTH, dim=dataset.X.shape[1])
+
+
     logging.info(f'Initializing SOM model, hyperparameters provided below')
     logging.info(f'Epoch : {EPOCH}')
     logging.info(f'Batch size : {BATCH_SIZE}')
     logging.info(f'Output dimension : ({HEIGHT}, {WIDTH}) {escape}')
     
     # Start training model
-    som.train()
+    
+    for epoch in range(EPOCH):
+        som.fit(dataset.X)
+        if epoch != 0 and epoch % checkpoint_step == 0:
+            labels = som.predict(dataset.X)
+            # merge data with cluster result
+            datasetWithClusterLabels = np.hstack((
+                dataset.X, 
+                np.array(list(labels)).reshape(-1, 1)
+            ))
+            export_cluster_result_to_csv(
+                datasetWithClusterLabels,
+                dataset.columns,
+                os.path.join(output_dir, output_dir_name),
+                f'cluster_{epoch}.csv'
+            )
+            save_dataframe_as_tiff(
+                os.path.join(output_dir, output_dir_name),
+                f'cluster_{epoch}.csv',
+                IMG_WIDTH, 
+                IMG_HEIGHT, 
+            )
+
+        logging.info(f'Epoch {epoch+1}/{EPOCH} finished')
+        
     logging.info(f'Finished training{escape}')
-
-    # Get the clustered data (pandas DataFrame)
-    logging.info(f'Exporting clustered data')
-    group = som.export_training_result(
-        os.path.join(output_dir, output_dir_name),
-        clustered_name
-    )
-    logging.info(f'Cluster result output at {os.path.join(output_dir, output_dir_name, clustered_name)}{escape}')
-
-    # Log cluster info
-    logging.info(f'We have {len(group)} clusters')
-    for category in list(group.keys()):
-        logging.info(f'Counts of cluster #{category} : {len(group[category])}')
-
-    logging.info(f'{escape}')
-    logging.info(f'Finished')
-
-
-    # 假設 som 是你已經實例化並訓練好的 SOM 物件
-    # visualize_weights(som, filename="som_weights.png")

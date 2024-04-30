@@ -33,8 +33,8 @@ def visualize_weights(som, filename=None):
         plt.show()
 
 
-def save_dataframe_as_tiff(data_path, width, height, output_path):
-    dataframe = pd.read_csv(data_path)
+def save_dataframe_as_tiff(data_path, filename, width, height):
+    dataframe = pd.read_csv(os.path.join(data_path, filename))
     # 创建一个新的图像对象，使用"1"表示单波段
     img = Image.new('L', (width, height), color='white')
     pixels = img.load()
@@ -45,8 +45,7 @@ def save_dataframe_as_tiff(data_path, width, height, output_path):
         for j in range(width):
             pixels[j, i] = int(cluster_data[i, j])
 
-    # 保存图像文件
-    img.save(output_path)
+    img.save(os.path.join(data_path, f'{filename.split(".")[0]}.tiff'))
 
 
 def visualize_tiff(input_path, output_path, filename, cmap, norm):

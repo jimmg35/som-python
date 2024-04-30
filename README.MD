@@ -8,7 +8,11 @@
 
 ### 訓練 SOM
 
-`python som-fit.py --dataset linkou.csv --epoch 100000 --batch 30 --width 4 --height 4`
+`python som-fit.py --dataset linkou.csv --epoch 100000 --batch 30 --width 4 --height 4 --image_width 500 --image_height 500`
+
+### 使用公開套件的 SOM 進行訓練
+
+`python som-fit-sklearn.py --dataset linkou.csv --epoch 100 --batch 30 --width 4 --height 4 --image_width 500 --image_height 500`
 
 ### SOM 分群後的 TIFF 結合為影片檔
 
