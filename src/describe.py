@@ -82,14 +82,15 @@ def random_forest_train(one_hot_encoded_clusters, cluster_index):
 
 
 def render_importance_rank(feature_importance_df, cluster_index):
-    bar = Bar()
-    bar.set_global_opts(
-        title_opts=opts.TitleOpts(title=f"Top 10 Important Features of Cluster {cluster_index}"),
-    )
-    bar.add_xaxis(list(feature_importance_df['Feature']))
-    bar.add_yaxis('Importance', list(feature_importance_df['Importance']))
-
-    bar.set_series_opts(
+    
+    c = (
+        Bar()
+        .set_global_opts(
+            title_opts=opts.TitleOpts(title=f"Top 10 Important Features of Cluster {cluster_index}"),
+        )
+        .add_xaxis(list(feature_importance_df['Feature']))
+        .add_yaxis('Importance', list(feature_importance_df['Importance']))
+        .set_series_opts(
             label_opts=opts.LabelOpts(
                 position="top",
                 formatter=JsCode(
@@ -101,4 +102,26 @@ def render_importance_rank(feature_importance_df, cluster_index):
                 ),
             )
         )
-    return bar
+    )
+    return c
+
+    #bar = Bar()
+    #bar.set_global_opts(
+    #    title_opts=opts.TitleOpts(title=f"Top 10 Important Features of Cluster {cluster_index}"),
+    #)
+    #bar.add_xaxis(list(feature_importance_df['Feature']))
+    #bar.add_yaxis('Importance', list(feature_importance_df['Importance']))
+
+    #bar.set_series_opts(
+    #        label_opts=opts.LabelOpts(
+    #            position="top",
+    #            formatter=JsCode(
+    #                """
+    #                function(params) {
+    #                    return params.value.toFixed(2);
+    #                }
+    #                """
+    #            ),
+    #        )
+    #    )
+    #return bar
